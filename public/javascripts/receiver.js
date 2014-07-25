@@ -62,7 +62,7 @@ Player.prototype.stop = function() {
   }
 
   if (this.audioSource) {
-    this.audioSource.stop();
+    (this.audioSource.stop || this.audioSource.noteOff).call(this.audioSource, 0);
     this.audioSource.startOffset += this.audioContext.currentTime - this.audioSource.startTime;
     this.playing = false;
     return true;
@@ -80,7 +80,7 @@ Player.prototype.playCurrentBuffer_ = function() {
 
   source.startTime = this.audioContext.currentTime;
   source.startOffset = this.audioSource.startOffset;
-  source.start(0, source.startOffset);
+  (source.start || source.noteOn).call(source, 0, source.startOffset);
 
   this.audioSource.disconnect();
   this.audioSource = source;
@@ -102,7 +102,7 @@ Player.prototype.playNextBuffer_ = function(callback) {
       source.buffer = sourceBuffer;
       source.startTime = self.audioContext.currentTime;
       source.startOffset = 0;
-      source.start(0, source.startOffset);
+      (source.start || source.noteOn).call(source, 0, source.startOffset);
 
       if (self.audioSource) {
         self.audioSource.disconnect();
@@ -135,6 +135,8 @@ $(function() {
   var room = $('#room').val();
   var player = new Player(room);
 
+  $('a#sender-url').attr('href', location.href + "/s");
+
   var $controls = $('#controls');
   $('button#play').click(function() {
     if (player.play()) {
@@ -146,5 +148,13 @@ $(function() {
     if (player.stop()) {
       $controls.removeClass('playing');
     }
+  });
+
+  $(window).one('touchstart', function() {
+    var buffer = player.audioContext.createBuffer(1, 1, 22050);
+    var source = player.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(player.audioContext.destination);
+    (source.start || source.noteOn).call(source, 0);
   });
 });

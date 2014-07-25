@@ -7,5 +7,6 @@
     "bootstrap": "~3.2.0",
     "backbone": "~1.1.2",
     "backbone.epoxy": "~1.1.0",
+    "libmp3lame-js": "akrennmair/libmp3lame-js"
   }
 }

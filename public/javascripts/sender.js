@@ -78,7 +78,11 @@ $(function() {
   var $pause = $controls.find('button#pause');
   var $audioSource = $('#audioSource');
 
-  var recorder = new Recorder($('#room').val());
+  var room = $('#room').val();
+  var recorder = new Recorder(room);
+
+  var friendUrl = 'http://' + location.host + '/' + room;
+  $('a#friend-url').attr('href', friendUrl).find('h4').text(friendUrl);
 
   $record.click(function() {
     if (recorder.record($audioSource.val())) {

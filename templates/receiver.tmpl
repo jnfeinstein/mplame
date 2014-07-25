@@ -1,7 +1,10 @@
 <script type="text/javascript" src="/javascripts/receiver.js"></script>
-<h2>Welcome to the "{{ . }}" room!</h2>
-<input type="hidden" id="room" value="{{ . }}"></input>
+<h2>Welcome to the "{{ .Name }}" room!</h2>
+<input type="hidden" id="room" value="{{ .Name }}"></input>
 <div id="controls" class="receiver">
   <button class="btn btn-sm btn-primary" id="play">Play</button>
   <button class="btn btn-sm btn-primary" id="pause">Pause</button>
+  {{ if not .HasSender }}
+    <a href="./s" id="sender-url">become sender</a>
+  {{ end }}
 </div>

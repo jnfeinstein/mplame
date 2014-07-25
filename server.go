@@ -79,12 +79,10 @@ func NewRoom(name string) *Room {
 
 func (r *Room) HandleReceiver(receiver *Receiver) {
 	defer r.RemoveReceiver(receiver)
-	count := 0
 	for {
 		for receiver.Frame.Next != nil {
 			frame := receiver.Frame.Next
-			count++
-			fmt.Printf("Sending frame \"%d\" to receiver\n", count)
+			fmt.Printf("%s: sending frame to receiver\n", r.Name)
 			if err := receiver.SendFrame(frame); err != nil {
 				return
 			}
@@ -101,7 +99,7 @@ func (r *Room) AddReceiver(conn *websocket.Conn) {
 	receiver := NewReceiver(conn, r.Frame)
 	r.Receivers[receiver] = true
 	go r.HandleReceiver(receiver)
-	fmt.Printf("%s has %d receivers\n", r.Name, len(r.Receivers))
+	fmt.Printf("%s: has %d receivers\n", r.Name, len(r.Receivers))
 }
 
 func (r *Room) RemoveReceiver(receiver *Receiver) {
@@ -115,16 +113,25 @@ func (r *Room) AppendFrame(frame *Frame) {
 	r.Frame = frame
 }
 
+func (r *Room) CheckSender() {
+	for {
+		<-time.After(1 * time.Second)
+		if err := r.Sender.Conn.WriteMessage(1, []byte{1, 2, 3}); err != nil {
+			fmt.Printf("%s: sender disconnected\n", r.Name)
+			r.Sender.Conn.Close()
+			r.Sender = nil
+			return
+		}
+	}
+}
+
 func (r *Room) HandleSender() {
-	count := 0
 	for {
 		messageType, data, err := r.Sender.Conn.ReadMessage()
 		if err != nil {
-			r.Sender.Conn.Close()
 			return
 		}
-		count++
-		fmt.Printf("Got \"%d\" from sender\n", count)
+		fmt.Printf("%s: new packet from sender\n", r.Name)
 		r.AppendFrame(NewFrame(messageType, data, nil))
 
 		for receiver, _ := range r.Receivers {
@@ -133,9 +140,15 @@ func (r *Room) HandleSender() {
 	}
 }
 
+func (r *Room) HasSender() bool {
+	return r.Sender != nil
+}
+
 func (r *Room) AddSender(conn *websocket.Conn) {
+	fmt.Printf("%s: new sender\n", r.Name)
 	r.Sender = &Sender{conn}
 	go r.HandleSender()
+	go r.CheckSender()
 }
 
 type RoomMap map[string]*Room
@@ -156,7 +169,12 @@ func (rc RoomCollection) GetRoom(name string) *Room {
 
 var rooms = RoomCollection{Map: make(RoomMap)}
 
-func main() {
+type ReceiverParams struct {
+	Name      string
+	HasSender bool
+}
+
+func Initialize() *martini.ClassicMartini {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	m := martini.Classic()
@@ -166,15 +184,23 @@ func main() {
 	}))
 
 	m.Get("/", func(r render.Render) {
-		r.HTML(200, "receiver", "broadcast")
+		r.HTML(200, "landing", nil)
 	})
 
 	m.Get("/:name", func(r render.Render, p martini.Params) {
-		r.HTML(200, "receiver", p["name"])
+		name := p["name"]
+		room := rooms.GetRoom(name)
+		r.HTML(200, "receiver", ReceiverParams{name, room.HasSender()})
 	})
 
 	m.Get("/:name/s", func(r render.Render, p martini.Params) {
-		r.HTML(200, "sender", p["name"])
+		name := p["name"]
+		room := rooms.GetRoom(name)
+		if room.HasSender() {
+			r.HTML(200, "receiver", ReceiverParams{name, true})
+		} else {
+			r.HTML(200, "sender", name)
+		}
 	})
 
 	m.Get("/sock/:room", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
@@ -195,8 +221,17 @@ func main() {
 		}
 		room := rooms.GetRoom(p["room"])
 		room.AddSender(conn)
-		fmt.Printf("%s has a new sender\n", p["room"])
 	})
 
+	return m
+}
+
+func init() {
+	m := Initialize()
+	http.Handle("/", m)
+}
+
+func main() {
+	m := Initialize()
 	m.Run()
 }

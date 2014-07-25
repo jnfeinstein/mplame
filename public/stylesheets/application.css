@@ -9,3 +9,5 @@ div#controls.sender.recording button#record { display: none; }
 div#controls.sender:not(.recording) button#pause { display: none; }
 div#controls.receiver.playing button#play { display: none; }
 div#controls.receiver:not(.playing) button#pause { display: none; }
+
+a#friend-url { display: inline-block; }
