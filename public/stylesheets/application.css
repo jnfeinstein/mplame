@@ -11,3 +11,12 @@ div#controls.receiver.playing button#play { display: none; }
 div#controls.receiver:not(.playing) button#pause { display: none; }
 
 a#friend-url { display: inline-block; }
+div#room-name-container {
+  margin-top: 20px;
+}
+div#room-list-container {
+  display: inline-block;
+  margin-top: 20px;
+}
+div#room-list { text-align: center; }
+div#room-list a { display: block; }

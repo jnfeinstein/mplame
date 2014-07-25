@@ -167,6 +167,16 @@ func (rc RoomCollection) GetRoom(name string) *Room {
 	return room
 }
 
+func (rc RoomCollection) GetRoomNames() []string {
+	names := make([]string, len(rc.Map))
+	idx := 0
+	for name, _ := range rc.Map {
+		names[idx] = name
+		idx++
+	}
+	return names
+}
+
 var rooms = RoomCollection{Map: make(RoomMap)}
 
 type ReceiverParams struct {
@@ -184,7 +194,11 @@ func Initialize() *martini.ClassicMartini {
 	}))
 
 	m.Get("/", func(r render.Render) {
-		r.HTML(200, "landing", nil)
+		r.HTML(200, "landing", rooms.GetRoomNames())
+	})
+
+	m.Get("/favicon.ico", func() {
+
 	})
 
 	m.Get("/:name", func(r render.Render, p martini.Params) {

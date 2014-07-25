@@ -1,4 +1,7 @@
 <script type="text/javascript" src="/javascripts/landing.js"></script>
+<script type="text/javascript">
+var rooms = {{ . }};
+</script>
 <h2>mpla.me</h2>
 <h4>Home of full WAV quality streaming music</h4>
 
@@ -7,5 +10,9 @@
     <label for="room-name">Where to?</label>
     <input id="room-name" type="text" placeholder="Pick any room name"></input>
     <button id="go" class="btn btn-primary btn-sm">Go</button>
+  </div>
+  <div id="room-list-container">
+    <label for="room-name">Or join one of these rooms...</label>
+    <div id="room-list"></div>
   </div>
 </div>
