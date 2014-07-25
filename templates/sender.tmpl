@@ -1,0 +1,9 @@
+<h2>Welcome to the "{{ . }}" room!</h2>
+<input type="hidden" id="room" value="{{ . }}"></input>
+<div id="controls" class="sender">
+  <button class="btn btn-sm btn-primary" id="record">Record</button>
+  <button class="btn btn-sm btn-primary" id="pause">Pause</button>
+  <label for='audioSource'>Audio source: </label>
+  <select id='audioSource'></select>
+</div>
+<script type="text/javascript" src="/javascripts/sender.js"></script>
