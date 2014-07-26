@@ -20,3 +20,22 @@ div#room-list-container {
 }
 div#room-list { text-align: center; }
 div#room-list a { display: block; }
+
+div#chat-container {
+  margin-top: 20px;
+}
+
+div#chat-window {
+  border: 1px solid gray;
+  width: 40em;
+  height: 20em;
+  overflow-y: scroll;
+  overflow-x: scroll;
+}
+
+div#chat-controls {
+  margin-top: 10px;
+  width: 40em;
+}
+
+div.chat { margin-left: 8px; }

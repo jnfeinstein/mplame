@@ -61,11 +61,14 @@ func (r *Receiver) SendFrame(frame *Frame) error {
 
 type ReceiverMap map[*Receiver]bool
 
+type ChatterMap map[*websocket.Conn]bool
+
 type Room struct {
 	Name      string
 	Frame     *Frame
 	Sender    *Sender
 	Receivers ReceiverMap
+	Chatters  ChatterMap
 }
 
 func NewRoom(name string) *Room {
@@ -74,7 +77,40 @@ func NewRoom(name string) *Room {
 	r.Frame = BlankFrame()
 	r.Sender = nil
 	r.Receivers = make(ReceiverMap)
+	r.Chatters = make(ChatterMap)
 	return r
+}
+
+func (r *Room) HandleChatter(conn *websocket.Conn) {
+	defer r.RemoveChatter(conn)
+	for {
+		messageType, data, err := conn.ReadMessage()
+		if err != nil {
+			return
+		}
+		fmt.Printf("%s: new chat\n", r.Name)
+		for c, _ := range r.Chatters {
+			if c != conn {
+				if err := c.WriteMessage(messageType, data); err != nil {
+					r.RemoveChatter(c)
+				}
+			}
+		}
+	}
+}
+
+func (r *Room) AddChatter(conn *websocket.Conn) {
+	fmt.Printf("%s: has %d chatters\n", r.Name, len(r.Chatters))
+	r.Chatters[conn] = true
+	go r.HandleChatter(conn)
+}
+
+func (r *Room) RemoveChatter(conn *websocket.Conn) {
+	if _, ok := r.Chatters[conn]; ok {
+		conn.Close()
+		delete(r.Chatters, conn)
+		fmt.Printf("%s: has %d chatters\n", r.Name, len(r.Chatters))
+	}
 }
 
 func (r *Room) HandleReceiver(receiver *Receiver) {
@@ -103,9 +139,11 @@ func (r *Room) AddReceiver(conn *websocket.Conn) {
 }
 
 func (r *Room) RemoveReceiver(receiver *Receiver) {
-	receiver.Conn.Close()
-	delete(r.Receivers, receiver)
-	fmt.Printf("%s has %d receivers\n", r.Name, len(r.Receivers))
+	if _, ok := r.Receivers[receiver]; ok {
+		receiver.Conn.Close()
+		delete(r.Receivers, receiver)
+		fmt.Printf("%s has %d receivers\n", r.Name, len(r.Receivers))
+	}
 }
 
 func (r *Room) AppendFrame(frame *Frame) {
@@ -118,8 +156,7 @@ func (r *Room) CheckSender() {
 		<-time.After(1 * time.Second)
 		if err := r.Sender.Conn.WriteMessage(1, []byte{1, 2, 3}); err != nil {
 			fmt.Printf("%s: sender disconnected\n", r.Name)
-			r.Sender.Conn.Close()
-			r.Sender = nil
+			r.RemoveSender()
 			return
 		}
 	}
@@ -131,7 +168,8 @@ func (r *Room) HandleSender() {
 		if err != nil {
 			return
 		}
-		fmt.Printf("%s: new packet from sender\n", r.Name)
+
+		fmt.Printf("%s: new frame from sender\n", r.Name)
 		r.AppendFrame(NewFrame(messageType, data, nil))
 
 		for receiver, _ := range r.Receivers {
@@ -149,6 +187,13 @@ func (r *Room) AddSender(conn *websocket.Conn) {
 	r.Sender = &Sender{conn}
 	go r.HandleSender()
 	go r.CheckSender()
+}
+
+func (r *Room) RemoveSender() {
+	if r.Sender != nil {
+		r.Sender.Conn.Close()
+		r.Sender = nil
+	}
 }
 
 type RoomMap map[string]*Room
@@ -235,6 +280,16 @@ func Initialize() *martini.ClassicMartini {
 		}
 		room := rooms.GetRoom(p["room"])
 		room.AddSender(conn)
+	})
+
+	m.Get("/sock/:room/c", func(w http.ResponseWriter, r *http.Request, p martini.Params) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		room := rooms.GetRoom(p["room"])
+		room.AddChatter(conn)
 	})
 
 	return m
