@@ -1,0 +1,28 @@
+{
+	"ImportPath": "streaming",
+	"GoVersion": "go1.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/inject",
+			"Comment": "v1.0-rc1-4-g4b81725",
+			"Rev": "4b8172520a03fa190f427bbd284db01b459bfce7"
+		},
+		{
+			"ImportPath": "github.com/go-martini/martini",
+			"Comment": "v1.0-25-g71a3b2e",
+			"Rev": "71a3b2ebd66bc7d7071c0e2e94b4a9105a63b0e4"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "10afcadf69098c003a97f23349c25ca16f0543e3"
+		},
+		{
+			"ImportPath": "github.com/martini-contrib/render",
+			"Rev": "b65063311fac6cbf84d3538f5715f7847e648322"
+		},
+		{
+			"ImportPath": "github.com/oxtoacart/bpool",
+			"Rev": "0f78ff9152c03745d1a47c9023af1b424e202c07"
+		}
+	]
+}
