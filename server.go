@@ -7,6 +7,7 @@ import (
 	"github.com/martini-contrib/render"
 	"net/http"
 	"runtime"
+	"streaming/config"
 	"time"
 )
 
@@ -231,6 +232,8 @@ type ReceiverParams struct {
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	config.Initialize()
 
 	m := martini.Classic()
 
