@@ -229,7 +229,7 @@ type ReceiverParams struct {
 	HasSender bool
 }
 
-func Initialize() *martini.ClassicMartini {
+func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	m := martini.Classic()
@@ -292,15 +292,5 @@ func Initialize() *martini.ClassicMartini {
 		room.AddChatter(conn)
 	})
 
-	return m
-}
-
-func init() {
-	m := Initialize()
-	http.Handle("/", m)
-}
-
-func main() {
-	m := Initialize()
 	m.Run()
 }
