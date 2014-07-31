@@ -233,9 +233,9 @@ type ReceiverParams struct {
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	config.Initialize()
-
 	m := martini.Classic()
+
+	config.Initialize(m)
 
 	m.Use(render.Renderer(render.Options{
 		Layout: "application",

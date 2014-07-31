@@ -17,6 +17,10 @@
 			"Rev": "10afcadf69098c003a97f23349c25ca16f0543e3"
 		},
 		{
+			"ImportPath": "github.com/martini-contrib/gorelic",
+			"Rev": "f8b0843aa3ab66d8734aa7d9acf399bdc197c65d"
+		},
+		{
 			"ImportPath": "github.com/martini-contrib/render",
 			"Rev": "b65063311fac6cbf84d3538f5715f7847e648322"
 		},
