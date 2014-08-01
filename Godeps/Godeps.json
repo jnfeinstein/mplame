@@ -1,5 +1,5 @@
 {
-	"ImportPath": "streaming",
+	"ImportPath": "mplame",
 	"GoVersion": "go1.3",
 	"Deps": [
 		{
