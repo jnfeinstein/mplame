@@ -7,7 +7,7 @@ import (
 	"github.com/martini-contrib/render"
 	"net/http"
 	"runtime"
-	"streaming/config"
+	"mplame/config"
 	"time"
 )
 
