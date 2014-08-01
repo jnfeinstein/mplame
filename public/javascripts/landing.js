@@ -12,7 +12,7 @@ $(function() {
       alert('You need to enter a room name, any room name.');
     }
     else {
-      window.location = location.protocol + '//' + location.host + "/" + $roomName.val();
+      window.location = location.protocol + '//' + location.host + "/room/" + $roomName.val();
     }
   });
 
@@ -21,7 +21,7 @@ $(function() {
   } else {
     for (var i = 0; i < 10 && i < rooms.length; i++) {
       var r = rooms[i];
-      $('<a/>', {href: location.protocol + '//' + location.host + "/" + r, text: r}).appendTo($('div#room-list'));
+      $('<a/>', {href: location.protocol + '//' + location.host + "/room/" + r, text: r}).appendTo($('div#room-list'));
     }
   }
 });

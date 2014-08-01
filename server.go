@@ -245,17 +245,13 @@ func main() {
 		r.HTML(200, "landing", rooms.GetRoomNames())
 	})
 
-	m.Get("/favicon.ico", func() {
-
-	})
-
-	m.Get("/:name", func(r render.Render, p martini.Params) {
+	m.Get("/room/:name", func(r render.Render, p martini.Params) {
 		name := p["name"]
 		room := rooms.GetRoom(name)
 		r.HTML(200, "receiver", ReceiverParams{name, room.HasSender()})
 	})
 
-	m.Get("/:name/s", func(r render.Render, p martini.Params) {
+	m.Get("/room/:name/s", func(r render.Render, p martini.Params) {
 		name := p["name"]
 		room := rooms.GetRoom(name)
 		if room.HasSender() {
