@@ -81,7 +81,7 @@ $(function() {
   var room = $('#room').val();
   var recorder = new Recorder(room);
 
-  var friendUrl = 'http://' + location.host + '/' + room;
+  var friendUrl = 'http://' + location.host + '/room/' + room;
   $('a#friend-url').attr('href', friendUrl).find('h4').text(friendUrl);
 
   $record.click(function() {
